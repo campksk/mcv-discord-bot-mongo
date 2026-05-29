@@ -1,0 +1,41 @@
+{
+  "name": "mcv-discord-bot",
+  "description": "Discord bot to notify MyCourseVille assignments (MongoDB version)",
+  "version": "2.0.0",
+  "main": "./build/start.js",
+  "author": "ggFROOK",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "discord.js": "^14.16.2",
+    "dotenv": "^16.3.1",
+    "envalid": "^8.0.0",
+    "mongoose": "^8.5.0",
+    "node-cache": "^5.1.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "<5.6.2"
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias",
+    "start": "node ./build/start.js",
+    "startTs": "ts-node -r tsconfig-paths/register ./src/start.ts",
+    "dev": "nodemon --exec ts-node -r tsconfig-paths/register ./src/start.ts"
+  },
+  "prettier": {
+    "endOfLine": "lf",
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  }
+}

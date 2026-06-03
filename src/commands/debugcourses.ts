@@ -13,7 +13,7 @@ export default {
     await interaction.editReply('Running updateCourses, check server logs...')
     try {
       await updateCourses()
-      const courses = await db.getAllCoursesOfTargetSemester()
+      const courses = await db.getAllCourses()
       if (courses.length === 0) {
         await interaction.followUp({
           content: '⚠️ No courses found in DB for current semester. Check server logs for details.',

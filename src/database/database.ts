@@ -4,9 +4,8 @@ import {
   NotificationChannelModel,
 } from './models'
 import { assignmentsCache, coursesCache } from './cache'
-import { targetSemester, targetYear } from '../config/config'
 
-// ── Plain object types (mirrors what Prisma used to export) ───────────────────
+// ── Plain object types ────────────────────────────────────────────────────────
 export interface Course {
   mcvID: number
   courseID: string
@@ -26,9 +25,7 @@ export interface NotificationChannel {
   channelID: string
 }
 
-export type CourseWithAssignments = Course & { assignments: Assignment[] }
-
-// ── Helper index keys ─────────────────────────────────────────────────────────
+// ── Index keys ────────────────────────────────────────────────────────────────
 function indexAssignment(a: Assignment): string {
   return `${a.mcvCourseID}/${a.assignmentID}`
 }
@@ -37,7 +34,7 @@ function indexCourse(c: Course): string {
   return c.mcvID.toString()
 }
 
-// ── DB namespace (same API surface as original Prisma-based db) ───────────────
+// ── DB namespace ──────────────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace db {
   export async function courseExists(course: Course): Promise<boolean> {
@@ -47,11 +44,8 @@ namespace db {
     return found != null
   }
 
-  export async function assignmentExists(
-    assignment: Assignment
-  ): Promise<boolean> {
-    if (assignmentsCache.get(indexAssignment(assignment)) !== undefined)
-      return true
+  export async function assignmentExists(assignment: Assignment): Promise<boolean> {
+    if (assignmentsCache.get(indexAssignment(assignment)) !== undefined) return true
     const found = await AssignmentModel.findOne({
       mcvCourseID: assignment.mcvCourseID,
       assignmentID: assignment.assignmentID,
@@ -60,12 +54,8 @@ namespace db {
     return found != null
   }
 
-  export async function channelOfGuildExists(
-    channel: NotificationChannel
-  ): Promise<boolean> {
-    const found = await NotificationChannelModel.findOne({
-      guildID: channel.guildID,
-    }).lean()
+  export async function channelOfGuildExists(channel: NotificationChannel): Promise<boolean> {
+    const found = await NotificationChannelModel.findOne({ guildID: channel.guildID }).lean()
     return found != null
   }
 
@@ -74,11 +64,9 @@ namespace db {
     return docs.map((d) => ({ guildID: d.guildID, channelID: d.channelID }))
   }
 
-  export async function getAllCoursesOfTargetSemester(): Promise<Course[]> {
-    const docs = await CourseModel.find({
-      year: targetYear.value,
-      semester: targetSemester.value,
-    }).lean()
+  /** ดึงทุก course จาก DB (ทุก semester) */
+  export async function getAllCourses(): Promise<Course[]> {
+    const docs = await CourseModel.find().lean()
     return docs.map(docToCourse)
   }
 
@@ -89,9 +77,7 @@ namespace db {
     return doc ? docToCourse(doc) : null
   }
 
-  export async function getChannelOfGuild(
-    guildID: string
-  ): Promise<NotificationChannel | null> {
+  export async function getChannelOfGuild(guildID: string): Promise<NotificationChannel | null> {
     const doc = await NotificationChannelModel.findOne({ guildID }).lean()
     return doc ? { guildID: doc.guildID, channelID: doc.channelID } : null
   }
@@ -120,7 +106,6 @@ namespace db {
 
 export default db
 
-// ── Internal helper ───────────────────────────────────────────────────────────
 function docToCourse(doc: {
   mcvID: number
   courseID: string

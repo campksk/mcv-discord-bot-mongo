@@ -11,14 +11,9 @@ import updateCourses from './updateCourses'
 import MutableWrapper from '@/utils/MutableWrapper'
 import { format } from 'util'
 
-/**
- * @description update assignments of each course
- * @returns messages containing new assignments (ready to send to Discord)
- * @throws {Error}
- */
 export async function updateAll(): Promise<string[]> {
   await updateCourses()
-  const coursesList = await db.getAllCoursesOfTargetSemester()
+  const coursesList = await db.getAllCourses()
 
   const mcvIdToCourse: Map<number, Course> = new Map()
   for (const course of coursesList) {
@@ -47,8 +42,13 @@ export async function updateAll(): Promise<string[]> {
   const currentMessageSize = new MutableWrapper(NEW_ASSIGNMENTS_MESSAGE_SIZE)
 
   for (const [mcvId, assignments] of mcvIdToNewAssignments.entries()) {
-    const courseInformation = mcvIdToCourse.get(mcvId)!
-    const newCourseLine = format(COURSE_MESSAGE_PATTERN, courseInformation.title)
+    const course = mcvIdToCourse.get(mcvId)!
+    const newCourseLine = format(
+      COURSE_MESSAGE_PATTERN,
+      course.title,
+      course.year,
+      course.semester
+    )
 
     if (
       currentMessageSize.value + [...newCourseLine].length >

@@ -2,7 +2,7 @@ import { ChannelType, DiscordAPIError, NewsChannel, TextChannel } from 'discord.
 import db from '../database/database'
 import { updateAll } from '../scraper/updateAll'
 import { adminDM, client } from '../server'
-import retryOnRateLimit from './Retryonratelimit'
+import retryOnRateLimit from './retryOnRateLimit'
 
 /**
  * Update assignments and send messages to all notification channels.

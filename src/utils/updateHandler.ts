@@ -1,7 +1,8 @@
-import { DiscordAPIError, TextChannel } from 'discord.js'
+import { ChannelType, DiscordAPIError, NewsChannel, TextChannel } from 'discord.js'
 import db from '../database/database'
 import { updateAll } from '../scraper/updateAll'
 import { adminDM, client } from '../server'
+import retryOnRateLimit from './Retryonratelimit'
 
 /**
  * Update assignments and send messages to all notification channels.
@@ -26,8 +27,16 @@ export default async function updateHandler(): Promise<boolean | undefined> {
       try {
         const discordChannel = (await client.channels.fetch(
           notificationChannel.channelID
-        )) as TextChannel
-        await discordChannel.send(message)
+        )) as TextChannel | NewsChannel
+        const sentMessage = await discordChannel.send(message)
+
+        // If this is an Announcement channel, publish it so all
+        // servers/channels that follow it also receive the message.
+        // Crosspost has its own rate limit (10/hour/channel) separate from
+        // sending messages, so retry with backoff if we hit it.
+        if (discordChannel.type === ChannelType.GuildAnnouncement) {
+          await retryOnRateLimit(() => sentMessage.crosspost())
+        }
       } catch (err) {
         console.trace(err)
         if (!(err instanceof DiscordAPIError)) {

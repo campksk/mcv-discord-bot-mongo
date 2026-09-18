@@ -3,3 +3,4 @@ build/
 .env
 *.js.map
 .env.swp
+package-lock.json

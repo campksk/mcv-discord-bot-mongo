@@ -11,6 +11,10 @@ import updateCourses from './updateCourses'
 import MutableWrapper from '@/utils/MutableWrapper'
 import { format } from 'util'
 
+// นำเข้าฟังก์ชันรีเฟรชตาราง
+import { refreshAssignmentsActive } from '../utils/refreshAssignmentsActive'
+
+// เอา client ออกจาก parameter
 export async function updateAll(): Promise<string[]> {
   await updateCourses()
   const coursesList = await db.getAllCourses()
@@ -34,6 +38,13 @@ export async function updateAll(): Promise<string[]> {
       }
     }
   }
+
+  // --- รีเฟรชตารางตรงนี้ โดยไม่ต้องพึ่งพา parameter client ---
+  console.log('[updateAll] Refreshing assignments active dashboard...')
+  await refreshAssignmentsActive().catch(e => 
+    console.error('[updateAll] Error refreshing dashboard:', e)
+  )
+  // ----------------------------------------------------
 
   if (mcvIdToNewAssignments.size === 0) return []
 

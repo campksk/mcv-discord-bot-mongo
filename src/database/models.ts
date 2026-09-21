@@ -55,3 +55,21 @@ export const NotificationChannelModel = mongoose.model<INotificationChannel>(
   'NotificationChannel',
   notificationChannelSchema
 )
+
+// ── AssignmentDashboard ───────────────────────────────────────────────────────
+export interface IAssignmentDashboard extends Document {
+  guildID: string
+  channelID: string
+  messageID: string
+}
+
+const assignmentDashboardSchema = new Schema<IAssignmentDashboard>({
+  guildID: { type: String, required: true, unique: true }, // 1 เซิร์ฟเวอร์ มีตารางหลัก 1 อัน
+  channelID: { type: String, required: true },
+  messageID: { type: String, required: true },
+})
+
+export const AssignmentDashboardModel = mongoose.model<IAssignmentDashboard>(
+  'AssignmentDashboard',
+  assignmentDashboardSchema
+)

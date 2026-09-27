@@ -114,7 +114,3 @@ This project is built upon the foundation of the original [mcv-discord-bot](http
 ## ⚠️ Disclaimer
 
 This is an unofficial project and is not affiliated with, maintained, or endorsed by MyCourseVille or Chulalongkorn University. Please use it responsibly and do not spam API requests.
-
-```
-
-```

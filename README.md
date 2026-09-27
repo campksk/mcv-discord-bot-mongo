@@ -100,16 +100,16 @@ Use `/assignmentactive` in a dedicated, read-only channel (e.g., `#homework-boar
 
 ## 🛠️ Built With
 
-* [Discord.js](https://discord.js.org/?utm_source=gemini) - The Discord API wrapper
-* [TypeScript](https://www.typescriptlang.org/?utm_source=gemini) - For robust and type-safe code
-* [Mongoose](https://mongoosejs.com/?utm_source=gemini) - MongoDB object modeling
-* [Cheerio](https://cheerio.js.org/?utm_source=gemini) - For parsing MCV HTML data
+* [Discord.js](https://discord.js.org/) - The Discord API wrapper
+* [TypeScript](https://www.typescriptlang.org/) - For robust and type-safe code
+* [Mongoose](https://mongoosejs.com/) - MongoDB object modeling
+* [Cheerio](https://cheerio.js.org/) - For parsing MCV HTML data
 
 ---
 
 ## 🙏 Acknowledgments
 
-This project is built upon the foundation of the original [mcv-discord-bot](https://github.com/CEDT-Chula/mcv-discord-bot?utm_source=gemini) created by the CEDT-Chula team. Huge thanks to the original contributors for their open-source work!
+This project is built upon the foundation of the original [mcv-discord-bot](https://github.com/CEDT-Chula/mcv-discord-bot) created by the CEDT-Chula team. Huge thanks to the original contributors for their open-source work!
 
 ## ⚠️ Disclaimer
 

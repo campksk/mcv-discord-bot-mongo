@@ -1,150 +1,120 @@
-# MCV Discord Bot (MongoDB Edition)
+# 🎓 MCV Discord Bot (MongoDB)
 
-Discord bot แจ้งเตือน assignment จาก MyCourseVille รันบน **Raspberry Pi 2** โดยใช้ **MongoDB** บน remote server
+A Discord bot designed for students using **MyCourseVille (MCV)**. It automatically scrapes course data, notifies your server about new assignments, and maintains a live, auto-updating dashboard of active homework—ensuring you and your friends never miss a deadline.
 
-## Requirements
+## ✨ Features
 
-- Node.js ≥ 18 (สำหรับ Raspberry Pi 2 ใช้ **armv7l** build)
-- MongoDB บน remote server
+- 🔔 **Automated Notifications**: Automatically fetches and announces newly posted assignments to your designated Discord channels.
+- 📊 **Live Assignment Dashboard**: Generates an interactive, auto-updating message (`/assignmentactive`) that lists all pending assignments grouped by course, complete with clickable links and dynamic Discord countdown timers.
+- 🗄️ **MongoDB Integration**: Efficiently stores course details, previous assignments, and notification settings using MongoDB.
+- ⚙️ **Slash Commands**: Easy-to-use Discord slash commands for seamless server management.
 
 ---
 
-## ติดตั้ง Node.js 18 บน Raspberry Pi 2 (armv7l)
+## 📋 Prerequisites
 
+Before you begin, ensure you have the following installed and set up:
+- **Node.js** (v16.x or newer)
+- **MongoDB** (Local instance or MongoDB Atlas)
+- **Discord Bot Token** (Get one from the [Discord Developer Portal](https://discord.com/developers/applications))
+- **MyCourseVille Session Cookie** (Used by the bot to access your assignments)
+
+---
+
+## 🚀 Installation & Setup
+
+**1. Clone the repository**
 ```bash
-# ดาวน์โหลด Node.js 18 armv7l binary
-wget https://unofficial-builds.nodejs.org/download/release/v18.20.4/node-v18.20.4-linux-armv7l.tar.xz
-tar -xf node-v18.20.4-linux-armv7l.tar.xz
-sudo cp -r node-v18.20.4-linux-armv7l/* /usr/local/
+git clone https://github.com/campksk/mcv-discord-bot-mongo.git
+cd mcv-discord-bot-mongo
 
-# ตรวจสอบ
-node -v  # v18.x.x
-npm -v
 ```
 
-> **หมายเหตุ:** Raspberry Pi 2 ใช้ ARMv7 ซึ่ง Node.js ไม่รองรับ official binary ตั้งแต่ v12+
-> ให้ดาวน์โหลดจาก [unofficial-builds.nodejs.org](https://unofficial-builds.nodejs.org/download/release/)
-
----
-
-## ติดตั้งโปรเจกต์
+**2. Install dependencies**
 
 ```bash
-git clone <your-repo>
-cd mcv-discord-bot
-
 npm install
 
-# Copy และแก้ไข .env
-cp .env.example .env
-nano .env
 ```
 
-### ค่าที่ต้องกรอกใน .env
+**3. Configure Environment Variables**
+Rename the `.env.example` file to `.env` and fill in your credentials:
 
-| ตัวแปร | คำอธิบาย |
-|---|---|
-| `MONGODB_URL` | MongoDB connection string เช่น `mongodb://user:pass@192.168.1.10:27017/mcvbot` |
-| `DISCORD_TOKEN` | Bot token จาก Discord Developer Portal |
-| `CLIENT_ID` | Application ID ของ bot |
-| `ADMIN_USER_ID` | Discord User ID ของ admin |
-| `COOKIE` | Cookie จาก MyCourseVille (`document.cookie` ใน browser) |
-| `DELAY` | ระยะเวลา (วินาที) ระหว่างการ fetch เช่น `300` |
-| `ERROR_FETCHING_NOTIFICATION` | `true`/`false` แจ้งเตือนเมื่อ fetch error |
-| `AUTO_DETERMINE_YEAR_AND_SEMESTER` | `true` ให้ bot หาปีการศึกษาเอง |
+```env
+# Database
+MONGODB_URL=mongodb://username:password@your-server-ip:27017/mcv-discord-bot
 
----
+# Discord
+DISCORD_TOKEN=your_discord_bot_token_here
+CLIENT_ID=your_discord_client_id_here
+ADMIN_USER_ID=your_discord_user_id_here
 
-## Build และรัน
+# MyCourseVille
+COOKIE=your_cookie_from_document_cookie
 
+# Bot Settings
+DELAY=120
+ERROR_FETCHING_NOTIFICATION=false
+
+```
+
+*(**Note:** The MCV cookie expires periodically. You can easily get a fresh `cv_session` cookie by logging into https://www.mycourseville.com/, opening your browser's Developer Console (F12), typing `document.cookie`, and pressing Enter.)*
+
+**4. Start the bot**
+
+* **For Development:**
 ```bash
-# Build TypeScript
+npm run dev
+
+```
+
+
+* **For Production:**
+```bash
 npm run build
-
-# รัน
 npm start
+
 ```
 
-หรือรันแบบ development (ไม่ต้อง build):
 
-```bash
-npm run startTs
-```
 
 ---
 
-## ตั้งค่าให้รันอัตโนมัติด้วย systemd
+## 💻 Usage & Commands
 
-สร้างไฟล์ `/etc/systemd/system/mcv-bot.service`:
+Once the bot is invited to your server and running, you can use the following Slash Commands:
 
-```ini
-[Unit]
-Description=MCV Discord Bot
-After=network-online.target
-Wants=network-online.target
+| Command | Description |
+| --- | --- |
+| `/assignmentactive` | 🌟 **(Recommended)** Creates a live dashboard in the current channel displaying all active assignments. The bot will automatically update the time left. |
+| `/setnotification` | Sets the current channel as the destination for new assignment alerts. |
+| `/unsetnotification` | Stops sending new assignment alerts to the current channel. |
+| `/update` | Manually triggers the bot to scrape for new courses and assignments immediately. |
+| `/debugcourses` | Developer command to check the list of fetched courses and their IDs. |
 
-[Service]
-Type=simple
-User=pi
-WorkingDirectory=/home/pi/mcv-discord-bot
-ExecStart=/usr/local/bin/node /home/pi/mcv-discord-bot/build/start.js
-Restart=on-failure
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
+### 💡 Pro-Tip for the Live Dashboard
 
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable mcv-bot
-sudo systemctl start mcv-bot
-
-# ดู log
-journalctl -u mcv-bot -f
-```
+Use `/assignmentactive` in a dedicated, read-only channel (e.g., `#homework-board`). The bot will generate a clean list of tasks and automatically refresh the countdown timers without sending new messages.
 
 ---
 
-## Commands
+## 🛠️ Built With
 
-| Command | คำอธิบาย |
-|---|---|
-| `/setnotification` | ตั้ง channel นี้เป็นช่องรับแจ้งเตือน |
-| `/unsetnotification` | ยกเลิกการแจ้งเตือนของ server |
-| `/update` | อัปเดต assignment รายการใหม่ทันที |
-
----
-
-## โครงสร้างโปรเจกต์
-
-```
-src/
-├── commands/          # Discord slash commands
-├── config/            # ค่า config ต่างๆ
-├── database/
-│   ├── models.ts      # Mongoose schemas (Course, Assignment, NotificationChannel)
-│   ├── mongoose.ts    # MongoDB connection
-│   ├── database.ts    # Database access layer
-│   └── cache.ts       # In-memory cache (node-cache)
-├── discord/           # Discord command registration
-├── env/               # Environment variable validation
-├── interfaces/        # TypeScript interfaces
-├── scraper/           # MyCourseVille web scraper
-├── utils/             # Utility functions
-├── server.ts          # Discord client setup
-└── start.ts           # Entry point
-```
+* [Discord.js](https://discord.js.org/?utm_source=gemini) - The Discord API wrapper
+* [TypeScript](https://www.typescriptlang.org/?utm_source=gemini) - For robust and type-safe code
+* [Mongoose](https://mongoosejs.com/?utm_source=gemini) - MongoDB object modeling
+* [Cheerio](https://cheerio.js.org/?utm_source=gemini) - For parsing MCV HTML data
 
 ---
 
-## การย้ายข้อมูลจาก PostgreSQL
+## 🙏 Acknowledgments
 
-ไม่มี migration script สำเร็จรูป แต่โครงสร้าง MongoDB ตรงกับเดิม:
-- `Course` → collection `courses`
-- `Assignment` → collection `assignments`  
-- `NotificationChannel` → collection `notificationchannels`
+This project is built upon the foundation of the original [mcv-discord-bot](https://github.com/CEDT-Chula/mcv-discord-bot?utm_source=gemini) created by the CEDT-Chula team. Huge thanks to the original contributors for their open-source work!
 
-Bot จะสร้าง index และ collection ให้อัตโนมัติเมื่อ connect ครั้งแรก
+## ⚠️ Disclaimer
+
+This is an unofficial project and is not affiliated with, maintained, or endorsed by MyCourseVille or Chulalongkorn University. Please use it responsibly and do not spam API requests.
+
+```
+
+```
